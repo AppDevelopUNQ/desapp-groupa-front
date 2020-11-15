@@ -9,7 +9,7 @@ import { DELETE } from "../../controllers/LocalStorageController";
 export function* logoutUser({ payload }) {
   try {
     DELETE("userLoged");
-    yield put({ type: LOGOUT_USER_COMPLETE, results });
+    yield put({ type: LOGOUT_USER_COMPLETE });
   } catch (error) {
     console.error(error);
     yield put({ type: LOGOUT_USER_ERROR, error });
