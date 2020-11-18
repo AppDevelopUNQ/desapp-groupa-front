@@ -9,14 +9,18 @@ import {
   Container,
   Typography,
   Modal,
+  Box,
+  Chip,
 } from "@material-ui/core";
 import "./style.sass";
 import { userLoged } from "../../redux/selectores/login";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { useTranslation } from "react-i18next";
 import { makeStyles } from "@material-ui/core/styles";
 import { LicenseInfo } from "@material-ui/x-grid";
 import { DataGrid } from "@material-ui/data-grid";
+import { getDonacionesFor } from "../../redux/actions/user";
+import { getDonations } from "../../redux/selectores/user";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -48,8 +52,10 @@ export const UserInfo = () => {
     "x0jTPl0USVkVZV0SsMjM1kDNyADM5cjM2ETPZJVSQhVRsIDN0YTM6IVREJ1T0b9586ef25c9853decfa7709eee27a1e"
   );
 
+  const dispatch = useDispatch();
   const { t } = useTranslation();
   const user = useSelector((state) => userLoged(state));
+  const donaciones = useSelector((state) => getDonations(state));
   const [verDonaciones, setVerDonaciones] = useState(false);
   const openVerDonaciones = (e) => {
     setVerDonaciones(true);
@@ -62,69 +68,97 @@ export const UserInfo = () => {
   const rootRef = useRef(null);
 
   const columns = [
-    { field: "name", headerName: "proyecto", width: 150 },
+    { field: "name", headerName: t("proyecto"), width: 150 },
     {
       field: "coverTheMinimumPercentage",
+      renderCell: (params) => {
+        if (params.value === 100) {
+          return <Chip label={t("finalizado")} color='secondary' />;
+        }
+        return (
+          <Box position='relative' display='inline-flex'>
+            <CircularProgress color='primary' variant='static' {...params} />
+            <Box
+              top={0}
+              left={0}
+              bottom={0}
+              right={0}
+              position='absolute'
+              display='flex'
+              alignItems='center'
+              justifyContent='center'>
+              <Typography
+                variant='caption'
+                component='div'
+                color='textSecondary'>
+                {`${Math.round(params.value)}%`}
+              </Typography>
+            </Box>
+          </Box>
+        );
+      },
       headerName: t("finalizado"),
       width: 150,
     },
   ];
-  let tabla = <CircularProgress color='secondary'></CircularProgress>;
+  const tabla = () => {
+    if (donaciones && donaciones.length > 0) {
+      return (
+        <Grid container style={{ height: "70vh" }}>
+          <DataGrid
+            pageSize={6}
+            rowsPerPageOptions={[1, 4, 6]}
+            pagination
+            rows={donaciones}
+            columns={columns}
+          />
+        </Grid>
+      );
+    }
+    dispatch(getDonacionesFor(user.id));
+    return <CircularProgress color='secondary'></CircularProgress>;
+  };
 
   if (!user) {
     return <CircularProgress color='primary'></CircularProgress>;
   }
 
-  if (user.donaciones && user.donaciones.length > 0) {
-    tabla = (
-      <Grid container style={{ height: "70vh" }}>
-        <DataGrid
-          pageSize={4}
-          rowsPerPageOptions={[1, 4, 5]}
-          pagination
-          rows={user.donaciones}
-          columns={columns}
-        />
-      </Grid>
-    );
-  }
-
   return (
     <Container>
-      <Typography variant='h5'>Informacion de usuario</Typography>
+      <Typography variant='h5'>{t("informacion-de-usuario")}</Typography>
       {/* USER INFO */}
       <Card>
         <CardContent>
           <Typography variant='h5' component='h2'>
             {user.name}
           </Typography>
-          <Typography color='textSecondary'>Donador</Typography>
+          <Typography color='textSecondary'>{t("donador")}</Typography>
           <Typography variant='body2' component='p'>
-            <strong> emial: </strong> {user.name}
+            <strong> {t("emial")} </strong> {user.name}
           </Typography>
           <Typography variant='body2' component='p'>
-            <strong> ultima donacion: </strong>
+            <strong> {t("ultima-donacion")} </strong>
             $1000
           </Typography>
           <Typography variant='body2' component='p'>
-            <strong> puntos: </strong>
+            <strong> {t('puntos')} </strong>
             1000
           </Typography>
         </CardContent>
         <CardActions>
           <Grid container>
-            <Grid item xs='12'>
+            <Grid item xs={12}>
               <Button
                 color='secondary'
                 style={{ width: "100%" }}
                 onClick={openVerDonaciones}>
-                ver donaciones
+                {t("ver-donaciones")}
               </Button>
             </Grid>
           </Grid>
         </CardActions>
       </Card>
-      {/* MODAL PARA DONAR */}
+      {/* MODAL PARA VER DONACIONES */}
       <Modal
         disablePortal
         disableEnforceFocus
@@ -136,8 +170,8 @@ export const UserInfo = () => {
         className={classes.modal}
         container={() => rootRef.current}>
         <div className={classes.paper}>
-          <Typography variant='h6'>Donaste 🎉</Typography>
-          {tabla}
+          <Typography variant='h6'>{t("donaste")} 🎉</Typography>
+          {tabla()}
         </div>
       </Modal>
     </Container>

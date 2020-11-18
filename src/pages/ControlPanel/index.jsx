@@ -21,10 +21,10 @@ export const ControlPanel = () => {
   return (
     <Container>
       <Grid container>
-        <Grid item xs='12' lg='3'>
+        <Grid item xs={12} lg={3}>
           <UserInfo />
         </Grid>
-        <Grid item xs='12' lg='9'>
+        <Grid item xs={12} lg={9}>
           <Proyectos />
         </Grid>
       </Grid>
