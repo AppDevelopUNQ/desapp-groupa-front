@@ -16,12 +16,14 @@ import {
 import { DataGrid } from "@material-ui/data-grid";
 import { useDispatch, useSelector } from "react-redux";
 import { search } from "../../redux/actions/projects";
+import { donate } from "../../redux/actions/user";
 import { getAllProjects, isLoading } from "../../redux/selectores/projects";
 import { LicenseInfo } from "@material-ui/x-grid";
 import "./style.sass";
 import { useTranslation } from "react-i18next";
 import { fade, makeStyles } from "@material-ui/core/styles";
 import SearchIcon from "@material-ui/icons/Search";
+import DatePicker from "../utils/datepicker";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -113,7 +115,12 @@ export const Proyectos = () => {
   const handleChangeMontoADonar = (e) => setMontoADonar(e.target.value);
   const handleClickEventoDeDonar = (e) => {
     setOpen(false);
-    console.log(`Donaste ${montoADonar} al proyecto id: ${proyectoADonar}!!!`);
+    dispatch(
+      donate({
+        idProyecto: proyectoADonar,
+        amount: montoADonar,
+      })
+    );
     setMontoADonar(0);
   };
   const handleSearchTextChange = (e) => {
@@ -183,6 +190,7 @@ export const Proyectos = () => {
   if (loading) {
     return <CircularProgress color='secondary' />;
   }
+
   const tabla = (listaDeProyectos) => {
     if (listaDeProyectos && listaDeProyectos.length >= 1) {
       return (
@@ -224,6 +232,9 @@ export const Proyectos = () => {
           </div>
         </Grid>
         <Grid item xs={12} lg={2} style={{ marginLeft: 10 }}>
+          <DatePicker />
+        </Grid>
+        <Grid item xs={12} lg={2} style={{ marginLeft: 10 }}>
           <Button color='secondary' variant='contained' onClick={handleSearch}>
             {t("buscar")}
           </Button>
@@ -242,9 +253,9 @@ export const Proyectos = () => {
         className={classes.modal}
         container={() => rootRef.current}>
         <div className={classes.paper}>
-          <Typography variant='h6'>{t('donar')} 💸</Typography>
+          <Typography variant='h6'>{t("donar")} 💸</Typography>
           <Typography component='p' id='server-modal-description'>
-            {t('que-monto-desea-donar')}
+            {t("que-monto-desea-donar")}
           </Typography>
           <FormControl fullWidth style={{ marginTop: "1.2em" }}>
             <Input
@@ -263,7 +274,7 @@ export const Proyectos = () => {
                 onClick={(e) => setMontoADonar(100)}
                 variant='contained'
                 color='primary'>
-                {t('usd100')}
+                {t("usd100")}
               </Button>
             </Grid>
             <Grid item xs={12} lg={3}>
@@ -271,7 +282,7 @@ export const Proyectos = () => {
                 onClick={(e) => setMontoADonar(500)}
                 variant='contained'
                 color='primary'>
-                {t('usd500')}
+                {t("usd500")}
               </Button>
             </Grid>
             <Grid item xs={12} lg={3}>
@@ -279,7 +290,7 @@ export const Proyectos = () => {
                 onClick={(e) => setMontoADonar(1000)}
                 variant='contained'
                 color='primary'>
-                {t('usd1000')}
+                {t("usd1000")}
               </Button>
             </Grid>
             <Grid item xs={12} lg={3}>
@@ -287,7 +298,7 @@ export const Proyectos = () => {
                 onClick={(e) => setMontoADonar(2000)}
                 variant='contained'
                 color='secondary'>
-                {t('usd2000')}
+                {t("usd2000")}
               </Button>
             </Grid>
           </Grid>
@@ -297,7 +308,7 @@ export const Proyectos = () => {
               variant='contained'
               style={{ width: "100%", marginTop: "2em" }}
               onClick={handleClickEventoDeDonar}>
-              {t('donar')}
+              {t("donar")}
             </Button>
           </Grid>
         </div>

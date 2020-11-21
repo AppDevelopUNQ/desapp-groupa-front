@@ -67,6 +67,10 @@ export const UserInfo = () => {
   const classes = useStyles();
   const rootRef = useRef(null);
 
+  if (!user) {
+    return <CircularProgress color='primary'></CircularProgress>;
+  }
+
   const columns = [
     { field: "name", headerName: t("proyecto"), width: 150 },
     {
@@ -101,27 +105,24 @@ export const UserInfo = () => {
       width: 150,
     },
   ];
+
   const tabla = () => {
-    if (donaciones && donaciones.length > 0) {
+    if (user.donaciones && user.donaciones.length >= 0) {
       return (
         <Grid container style={{ height: "70vh" }}>
           <DataGrid
             pageSize={6}
             rowsPerPageOptions={[1, 4, 6]}
             pagination
-            rows={donaciones}
+            rows={user.donaciones}
             columns={columns}
           />
         </Grid>
       );
     }
-    dispatch(getDonacionesFor(user.id));
+    //  dispatch(getDonacionesFor(user.id));
     return <CircularProgress color='secondary'></CircularProgress>;
   };
-
-  if (!user) {
-    return <CircularProgress color='primary'></CircularProgress>;
-  }
 
   return (
     <Container>
@@ -141,7 +142,7 @@ export const UserInfo = () => {
             $1000
           </Typography>
           <Typography variant='body2' component='p'>
-            <strong> {t('puntos')} </strong>
+            <strong> {t("puntos")} </strong>
             1000
           </Typography>
         </CardContent>

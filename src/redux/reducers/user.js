@@ -2,6 +2,9 @@ import {
   SEARCH_DONATIONS_COMPLETE,
   SEARCH_DONATIONS_START,
   SEARCH_DONATIONS_ERROR,
+  DONACION_COMPLETE,
+  DONACION_START,
+  DONACION_ERROR,
 } from "../methods/user";
 
 const initialState = {};
@@ -28,6 +31,26 @@ export default function (state = initialState, action) {
         donations: [],
       };
       break;
+
+    case DONACION_START:
+      return {
+        ...state,
+        isLoading: true,
+      };
+      break;
+    case DONACION_COMPLETE:
+      return {
+        ...state,
+        isLoading: false,
+      };
+      break;
+    case DONACION_ERROR:
+      return {
+        ...state,
+        isLoading: false,
+      };
+      break;
+
     default:
       return {
         ...state,
