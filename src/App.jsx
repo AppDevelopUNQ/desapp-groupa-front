@@ -10,6 +10,7 @@ import { Selector } from "./components/Lenguaje";
 import { Logout } from "./components/Logout";
 import { Login } from "./components/Login";
 import { CircularProgress } from "@material-ui/core";
+import "./style.sass";
 
 const App = ({ store }) => {
   const { user, isAuthenticated, isLoading } = useAuth0();
@@ -29,21 +30,9 @@ const App = ({ store }) => {
   return (
     <Provider store={store}>
       <Router>
-        <div
-          style={{
-            marginTop: 60,
-          }}>
-          {ruteo()}
-        </div>
+        <div className='root'>{ruteo()}</div>
       </Router>
-      <div
-        style={{
-          display: "flex",
-          position: "fixed",
-          top: 20,
-          left: 20,
-          width: 10,
-        }}>
+      <div className='nav'>
         {fn_login()}
         <Selector />
       </div>

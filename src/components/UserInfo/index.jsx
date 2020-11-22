@@ -9,7 +9,6 @@ import {
   Typography,
   Modal,
   Box,
-  Chip,
   Avatar,
 } from "@material-ui/core";
 import "./style.sass";
@@ -46,6 +45,9 @@ const useStyles = makeStyles((theme) => ({
     borderRadius: "1.2rem",
     boxShadow: theme.shadows[5],
     padding: theme.spacing(2, 4, 3),
+    "@media (max-width: 1023px)": {
+      width: "100vw",
+    },
   },
 }));
 
@@ -78,31 +80,31 @@ const UserInfoComponent = () => {
           )}
         </Box>
       ),
-      headerName: "dia",
+      headerName: t("fecha"),
       width: 150,
     },
     {
-      field: "project",
+      field: "name",
       renderCell: (params) => (
         <Box position='relative' display='inline-flex'>
-          {params.value.name}
+          {params.value}
         </Box>
       ),
       headerName: t("proyecto"),
       width: 150,
     },
     {
-      field: "project",
+      field: "fantasyName",
       renderCell: (params) => (
         <Box position='relative' display='inline-flex'>
-          {params.value.fantasyName}
+          {params.value}
         </Box>
       ),
-      headerName: "fanta",
+      headerName: t("nombre"),
       width: 150,
     },
-    { field: "points", headerName: "puntos", width: 150 },
-    { field: "amount", headerName: "donado", width: 150 },
+    { field: "points", headerName: t("puntos"), width: 150 },
+    { field: "amount", headerName: t("donado"), width: 150 },
   ];
   if (!user) {
     return <CircularProgress color='secondary'></CircularProgress>;
@@ -110,12 +112,19 @@ const UserInfoComponent = () => {
   const tabla = () => {
     if (donaciones && donaciones.length >= 0) {
       return (
-        <Grid container style={{ height: "70vh", width: "60vw" }}>
+        <Grid container className='table'>
           <DataGrid
             pageSize={6}
             rowsPerPageOptions={[1, 4, 6]}
             pagination
-            rows={donaciones}
+            rows={donaciones.map((x) => ({
+              id: x.id,
+              date: x.date,
+              name: x.project.name,
+              fantasyName: x.project.fantasyName,
+              points: x.points,
+              amount: x.amount,
+            }))}
             columns={columns}
           />
         </Grid>
@@ -127,7 +136,7 @@ const UserInfoComponent = () => {
   };
 
   return (
-    <Grid item xs={12} style={{ marginTop: "20vh" }}>
+    <Grid item xs={12} className='container'>
       {/* USER INFO */}
       <Card>
         <CardContent>

@@ -1,1 +1,16 @@
+$mobile: "(max-width: 1023px)"
+$desktop: "(min-width: 1024px)"
 
+@media #{$desktop}
+    .container
+        marginTop: 20vh
+    .table
+        height: 70vh
+        width: 60vw
+
+@media #{$mobile}
+    .container
+        margin-top: 11vh !important
+    .table
+        height: 70vh
+        width: 100vw

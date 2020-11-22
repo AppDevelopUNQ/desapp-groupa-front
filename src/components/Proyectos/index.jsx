@@ -18,7 +18,7 @@ import MuiAlert from "@material-ui/lab/Alert";
 import { DataGrid } from "@material-ui/data-grid";
 import { useDispatch, useSelector } from "react-redux";
 import { search } from "../../redux/actions/projects";
-import { donate, getDonacionesFor } from "../../redux/actions/user";
+import { donate } from "../../redux/actions/user";
 import { getAllProjects, isLoading } from "../../redux/selectores/projects";
 import { isLoadingUser } from "../../redux/selectores/user";
 import { LicenseInfo } from "@material-ui/x-grid";
@@ -143,18 +143,17 @@ const ProyectoComponent = () => {
   const handleClickEventoDeDonar = (e) => {
     if (montoADonar <= 0) return;
     setOpen(false);
-    dispatch(
-      donate({
-        idProyecto: proyectoADonar,
-        amount: montoADonar,
-      })
-    );
-    dispatch(getDonacionesFor());
     let d = new Date(selectedDate);
     dispatch(
-      search({
-        word: searchText,
-        date: `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`,
+      donate({
+        donacion: {
+          idProyecto: proyectoADonar,
+          amount: montoADonar,
+        },
+        search: {
+          word: searchText,
+          date: `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`,
+        },
       })
     );
     setMontoADonar(0);
@@ -199,7 +198,7 @@ const ProyectoComponent = () => {
       field: "coverTheMinimumPercentage",
       renderCell: (params) => (
         <Box position='relative' display='inline-flex'>
-          <CircularProgress variant='static' {...params} />
+          {/* <CircularProgress variant='static' {...params} />
           <Box
             top={0}
             left={0}
@@ -212,7 +211,7 @@ const ProyectoComponent = () => {
             <Typography variant='caption' component='div' color='textSecondary'>
               {`${Math.round(params.value)}%`}
             </Typography>
-          </Box>
+          </Box> */}
         </Box>
       ),
       headerName: t("finalizado"),
@@ -221,19 +220,19 @@ const ProyectoComponent = () => {
     {
       field: "id",
       renderCell: (params) => {
-        if (params.getValue("coverTheMinimumPercentage") < 100) {
-          return (
-            <Button
-              variant='contained'
-              color='primary'
-              onClick={(e) => {
-                donar(params.value);
-              }}>
-              {t("donar")}
-            </Button>
-          );
+        if (params.getValue("coverTheMinimumPercentage")) {
+          return <Chip label={t("finalizado")} color='secondary' disabled />;
         }
-        return <Chip label={t("finalizado")} color='secondary' disabled />;
+        return (
+          <Button
+            variant='contained'
+            color='primary'
+            onClick={(e) => {
+              donar(params.value);
+            }}>
+            {t("donar")}
+          </Button>
+        );
       },
       headerName: t("donar"),
       width: 150,
@@ -249,7 +248,7 @@ const ProyectoComponent = () => {
   const tabla = (listaDeProyectos) => {
     if (!loading && listaDeProyectos && listaDeProyectos.length >= 1) {
       return (
-        <Grid container style={{ height: "70vh" }}>
+        <Grid container className='table'>
           <DataGrid
             pageSize={4}
             rowsPerPageOptions={[1, 4, 5]}
@@ -272,17 +271,18 @@ const ProyectoComponent = () => {
   }
 
   return (
-    <Container>
+    <Container className='proyectos'>
       <Grid item xs={12} lg={4}>
         <Typography variant='h5'>{t("proyectos-abiertos")}</Typography>
       </Grid>
-      <Grid container>
+      <Grid container className='margintop'>
         <Grid item xs={12} lg={4}>
           <div className={classes.search}>
             <div className={classes.searchIcon}>
               <SearchIcon />
             </div>
             <InputBase
+              style={{ width: "100%" }}
               placeholder='Search…'
               classes={{
                 root: classes.inputRoot,
@@ -297,11 +297,12 @@ const ProyectoComponent = () => {
           <MuiPickersUtilsProvider
             utils={DateFnsUtils}
             locale={getLenguageDatePicker()}>
-            <Grid container justify='space-around'>
+            <Grid container className='margintop' style={{ width: "100%" }}>
               <KeyboardDatePicker
                 id='date-picker-dialog'
                 format={t("mm-dd-yyyy")}
                 value={selectedDate}
+                style={{ width: "100%" }}
                 onChange={handleDateChange}
                 KeyboardButtonProps={{
                   "aria-label": "change date",
@@ -310,8 +311,17 @@ const ProyectoComponent = () => {
             </Grid>
           </MuiPickersUtilsProvider>
         </Grid>
-        <Grid item xs={12} lg={2} style={{ marginLeft: 10 }}>
-          <Button color='secondary' variant='contained' onClick={handleSearch}>
+        <Grid
+          item
+          xs={12}
+          lg={2}
+          className='margintop'
+          style={{ marginLeft: 10 }}>
+          <Button
+            color='secondary'
+            variant='contained'
+            style={{ width: "100%" }}
+            onClick={handleSearch}>
             {t("buscar")}
           </Button>
         </Grid>
@@ -348,36 +358,49 @@ const ProyectoComponent = () => {
             />
           </FormControl>
           <Grid container style={{ marginTop: "2em" }}>
-            <Grid item xs={12} lg={3}>
+            <Grid item xs={6} lg={3}>
               <Button
-                onClick={(e) => setMontoADonar(t("100"))}
+                style={{ width: "90%", margin: 10 }}
+                onClick={(e) => setMontoADonar(100)}
                 variant='contained'
                 color='primary'>
-                {numberFormat(t("100"))}
+                {numberFormat(100)}
               </Button>
             </Grid>
-            <Grid item xs={12} lg={3}>
+            <Grid item xs={6} lg={3}>
               <Button
-                onClick={(e) => setMontoADonar(t("500"))}
+                onClick={(e) => setMontoADonar(200)}
+                style={{ width: "90%", margin: 10 }}
                 variant='contained'
                 color='primary'>
-                {numberFormat(t("500"))}
+                {numberFormat(200)}
               </Button>
             </Grid>
-            <Grid item xs={12} lg={3}>
+            <Grid item xs={6} lg={3}>
               <Button
-                onClick={(e) => setMontoADonar(t("1000"))}
+                onClick={(e) => setMontoADonar(500)}
+                style={{ width: "90%", margin: 10 }}
                 variant='contained'
                 color='primary'>
-                {numberFormat(t("1000"))}
+                {numberFormat(500)}
               </Button>
             </Grid>
-            <Grid item xs={12} lg={3}>
+            <Grid item xs={6} lg={3}>
               <Button
-                onClick={(e) => setMontoADonar(t("2000"))}
+                onClick={(e) => setMontoADonar(1000)}
+                style={{ width: "90%", margin: 10 }}
+                variant='contained'
+                color='primary'>
+                {numberFormat(1000)}
+              </Button>
+            </Grid>
+            <Grid item xs={12} lg={12}>
+              <Button
+                style={{ width: "100%" }}
+                onClick={(e) => setMontoADonar(2000)}
                 variant='contained'
                 color='secondary'>
-                {numberFormat(t("2000"))}
+                {numberFormat(2000)}
               </Button>
             </Grid>
           </Grid>
@@ -403,6 +426,5 @@ const ProyectoComponent = () => {
     </Container>
   );
 };
-
 
 export const Proyectos = withRouter(ProyectoComponent);

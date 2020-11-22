@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, Container, Grid, Typography } from "@material-ui/core";
+import { Container, Grid, Typography } from "@material-ui/core";
 import img from "../../assets/undraw_Master_plan_re_jvit.svg";
 import "./style.sass";
 import { useTranslation } from "react-i18next";
@@ -10,7 +10,7 @@ export const Banner = () => {
     <Container className='banner'>
       <Grid container className='grid'>
         <Grid className='left'>
-          <img src={img} />
+          <img src={img} alt='img' />
         </Grid>
         <Grid className='right'>
           <Typography variant='h3' className='title'>
