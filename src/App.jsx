@@ -2,36 +2,53 @@ import React from "react";
 import { BrowserRouter as Router, Route } from "react-router-dom";
 import { Provider } from "react-redux";
 import PropTypes from "prop-types";
+import { useAuth0 } from "@auth0/auth0-react";
 
 import { Home } from "./pages/Home";
 import { ControlPanel } from "./pages/ControlPanel";
 import { Selector } from "./components/Lenguaje";
 import { Logout } from "./components/Logout";
+import { Login } from "./components/Login";
+import { CircularProgress } from "@material-ui/core";
 
-const App = ({ store }) => (
-  <Provider store={store}>
-    <Router>
+const App = ({ store }) => {
+  const { isAuthenticated, isLoading } = useAuth0();
+  const fn_login = () => {
+    if (isLoading)
+      return <CircularProgress color='secondary'></CircularProgress>;
+
+    if (isAuthenticated) return <Logout />;
+
+    return <Login />;
+  };
+  const ruteo = () => {
+    if (!isAuthenticated) return <Route exact path='/' component={Home} />;
+    return <Route exact path='/' component={ControlPanel} />;
+  };
+  return (
+    <Provider store={store}>
+      <Router>
+        <div
+          style={{
+            marginTop: 60,
+          }}>
+          {ruteo()}
+        </div>
+      </Router>
       <div
         style={{
-          marginTop: 60,
+          display: "flex",
+          position: "fixed",
+          top: 20,
+          left: 20,
+          width: 10,
         }}>
-        <Route exact path='/' component={Home} />
-        <Route exact path='/ControlPanel' component={ControlPanel} />
+        {fn_login()}
+        <Selector />
       </div>
-    </Router>
-    <div
-      style={{
-        display: "flex",
-        position: "fixed",
-        top: 20,
-        left: 20,
-        width: 10,
-      }}>
-      <Logout />
-      <Selector />
-    </div>
-  </Provider>
-);
+    </Provider>
+  );
+};
 
 App.propTypes = {
   store: PropTypes.object.isRequired,

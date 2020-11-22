@@ -12,18 +12,32 @@ import {
   Box,
   Chip,
   InputBase,
+  Snackbar,
 } from "@material-ui/core";
+import MuiAlert from "@material-ui/lab/Alert";
 import { DataGrid } from "@material-ui/data-grid";
 import { useDispatch, useSelector } from "react-redux";
 import { search } from "../../redux/actions/projects";
 import { donate } from "../../redux/actions/user";
 import { getAllProjects, isLoading } from "../../redux/selectores/projects";
+import { isLoadingUser } from "../../redux/selectores/user";
 import { LicenseInfo } from "@material-ui/x-grid";
 import "./style.sass";
 import { useTranslation } from "react-i18next";
 import { fade, makeStyles } from "@material-ui/core/styles";
 import SearchIcon from "@material-ui/icons/Search";
-import DatePicker from "../utils/datepicker";
+import "date-fns";
+import DateFnsUtils from "@date-io/date-fns";
+import {
+  getLenguageDatePicker,
+  getLanguageI18n,
+  getCurrencySymbol,
+  numberFormat,
+} from "../../i18n";
+import {
+  MuiPickersUtilsProvider,
+  KeyboardDatePicker,
+} from "@material-ui/pickers";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -95,9 +109,21 @@ export const Proyectos = () => {
   LicenseInfo.setLicenseKey(
     "x0jTPl0USVkVZV0SsMjM1kDNyADM5cjM2ETPZJVSQhVRsIDN0YTM6IVREJ1T0b9586ef25c9853decfa7709eee27a1e"
   );
+
+  const [openAlert, setOpenAlert] = useState(false);
+
+  const handleCloseAlert = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+
+    setOpenAlert(false);
+  };
+
   const { t } = useTranslation();
   let proyectos = useSelector((state) => getAllProjects(state));
   const loading = useSelector((state) => isLoading(state));
+  const isLoadingDonate = useSelector((state) => isLoadingUser(state));
   const dispatch = useDispatch();
   const donar = (idProyecto) => {
     setOpen(true);
@@ -114,6 +140,7 @@ export const Proyectos = () => {
   };
   const handleChangeMontoADonar = (e) => setMontoADonar(e.target.value);
   const handleClickEventoDeDonar = (e) => {
+    if (montoADonar <= 0) return;
     setOpen(false);
     dispatch(
       donate({
@@ -122,20 +149,42 @@ export const Proyectos = () => {
       })
     );
     setMontoADonar(0);
+    setOpenAlert(true);
   };
   const handleSearchTextChange = (e) => {
     setSearchText(e.target.value);
   };
   const handleSearch = (e) => {
-    dispatch(search(searchText));
+    dispatch(
+      search(
+        searchText,
+        new Intl.DateTimeFormat("es-AR").format(new Date(selectedDate))
+      )
+    );
   };
   const classes = useStyles();
   const rootRef = useRef(null);
+  const [selectedDate, setSelectedDate] = React.useState(new Date(Date.now()));
 
+  const handleDateChange = (date) => {
+    setSelectedDate(date);
+  };
   const columns = [
     { field: "name", headerName: t("nombre"), width: 150 },
     { field: "fantasyName", headerName: t("nombre-fantasia"), width: 150 },
-    { field: "deadline", headerName: t("fecha-fin"), width: 150 },
+    {
+      field: "deadline",
+      renderCell: (params) => (
+        <Box position='relative' display='inline-flex'>
+          {new Intl.DateTimeFormat(getLanguageI18n()).format(
+            new Date(params.value)
+          )}
+        </Box>
+      ),
+      headerName: t("fecha-fin"),
+      width: 150,
+    },
+
     {
       field: "coverTheMinimumPercentage",
       renderCell: (params) => (
@@ -187,12 +236,8 @@ export const Proyectos = () => {
     }
   });
 
-  if (loading) {
-    return <CircularProgress color='secondary' />;
-  }
-
   const tabla = (listaDeProyectos) => {
-    if (listaDeProyectos && listaDeProyectos.length >= 1) {
+    if (!loading && listaDeProyectos && listaDeProyectos.length >= 1) {
       return (
         <Grid container style={{ height: "70vh" }}>
           <DataGrid
@@ -206,15 +251,22 @@ export const Proyectos = () => {
       );
     }
 
-    return <CircularProgress color='secondary' />;
+    return <CircularProgress color='secondary'></CircularProgress>;
   };
+
+  function Alert(props) {
+    if (isLoadingDonate) {
+      return <CircularProgress color='secondary'></CircularProgress>;
+    }
+    return <MuiAlert elevation={6} variant='filled' {...props} />;
+  }
 
   return (
     <Container>
+      <Grid item xs={12} lg={4}>
+        <Typography variant='h5'>{t("proyectos-abiertos")}</Typography>
+      </Grid>
       <Grid container>
-        <Grid item xs={12} lg={4}>
-          <Typography variant='h5'>{t("proyectos-abiertos")}</Typography>
-        </Grid>
         <Grid item xs={12} lg={4}>
           <div className={classes.search}>
             <div className={classes.searchIcon}>
@@ -232,7 +284,21 @@ export const Proyectos = () => {
           </div>
         </Grid>
         <Grid item xs={12} lg={2} style={{ marginLeft: 10 }}>
-          <DatePicker />
+          <MuiPickersUtilsProvider
+            utils={DateFnsUtils}
+            locale={getLenguageDatePicker()}>
+            <Grid container justify='space-around'>
+              <KeyboardDatePicker
+                id='date-picker-dialog'
+                format={t("mm-dd-yyyy")}
+                value={selectedDate}
+                onChange={handleDateChange}
+                KeyboardButtonProps={{
+                  "aria-label": "change date",
+                }}
+              />
+            </Grid>
+          </MuiPickersUtilsProvider>
         </Grid>
         <Grid item xs={12} lg={2} style={{ marginLeft: 10 }}>
           <Button color='secondary' variant='contained' onClick={handleSearch}>
@@ -263,42 +329,45 @@ export const Proyectos = () => {
               value={montoADonar}
               type='number'
               onChange={handleChangeMontoADonar}
+              error={montoADonar <= 0}
               startAdornment={
-                <InputAdornment position='start'>$</InputAdornment>
+                <InputAdornment position={t("currencyPosition")}>
+                  {getCurrencySymbol()}
+                </InputAdornment>
               }
             />
           </FormControl>
           <Grid container style={{ marginTop: "2em" }}>
             <Grid item xs={12} lg={3}>
               <Button
-                onClick={(e) => setMontoADonar(100)}
+                onClick={(e) => setMontoADonar(t("100"))}
                 variant='contained'
                 color='primary'>
-                {t("usd100")}
+                {numberFormat(t("100"))}
               </Button>
             </Grid>
             <Grid item xs={12} lg={3}>
               <Button
-                onClick={(e) => setMontoADonar(500)}
+                onClick={(e) => setMontoADonar(t("500"))}
                 variant='contained'
                 color='primary'>
-                {t("usd500")}
+                {numberFormat(t("500"))}
               </Button>
             </Grid>
             <Grid item xs={12} lg={3}>
               <Button
-                onClick={(e) => setMontoADonar(1000)}
+                onClick={(e) => setMontoADonar(t("1000"))}
                 variant='contained'
                 color='primary'>
-                {t("usd1000")}
+                {numberFormat(t("1000"))}
               </Button>
             </Grid>
             <Grid item xs={12} lg={3}>
               <Button
-                onClick={(e) => setMontoADonar(2000)}
+                onClick={(e) => setMontoADonar(t("2000"))}
                 variant='contained'
                 color='secondary'>
-                {t("usd2000")}
+                {numberFormat(t("2000"))}
               </Button>
             </Grid>
           </Grid>
@@ -313,6 +382,14 @@ export const Proyectos = () => {
           </Grid>
         </div>
       </Modal>
+      <Snackbar
+        open={openAlert}
+        autoHideDuration={6000}
+        onClose={handleCloseAlert}>
+        <Alert onClose={handleCloseAlert} severity='success'>
+          {t("su-donacion-se-registro-con-exito")}
+        </Alert>
+      </Snackbar>
     </Container>
   );
 };

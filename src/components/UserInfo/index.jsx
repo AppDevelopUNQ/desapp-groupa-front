@@ -11,16 +11,14 @@ import {
   Modal,
   Box,
   Chip,
+  Avatar,
 } from "@material-ui/core";
 import "./style.sass";
-import { userLoged } from "../../redux/selectores/login";
-import { useSelector, useDispatch } from "react-redux";
 import { useTranslation } from "react-i18next";
 import { makeStyles } from "@material-ui/core/styles";
 import { LicenseInfo } from "@material-ui/x-grid";
 import { DataGrid } from "@material-ui/data-grid";
-import { getDonacionesFor } from "../../redux/actions/user";
-import { getDonations } from "../../redux/selectores/user";
+import { useAuth0 } from "@auth0/auth0-react";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -51,11 +49,8 @@ export const UserInfo = () => {
   LicenseInfo.setLicenseKey(
     "x0jTPl0USVkVZV0SsMjM1kDNyADM5cjM2ETPZJVSQhVRsIDN0YTM6IVREJ1T0b9586ef25c9853decfa7709eee27a1e"
   );
-
-  const dispatch = useDispatch();
+  const { user } = useAuth0();
   const { t } = useTranslation();
-  const user = useSelector((state) => userLoged(state));
-  const donaciones = useSelector((state) => getDonations(state));
   const [verDonaciones, setVerDonaciones] = useState(false);
   const openVerDonaciones = (e) => {
     setVerDonaciones(true);
@@ -66,10 +61,6 @@ export const UserInfo = () => {
 
   const classes = useStyles();
   const rootRef = useRef(null);
-
-  if (!user) {
-    return <CircularProgress color='primary'></CircularProgress>;
-  }
 
   const columns = [
     { field: "name", headerName: t("proyecto"), width: 150 },
@@ -105,7 +96,9 @@ export const UserInfo = () => {
       width: 150,
     },
   ];
-
+  if (!user) {
+    return <CircularProgress color='secondary'></CircularProgress>;
+  }
   const tabla = () => {
     if (user.donaciones && user.donaciones.length >= 0) {
       return (
@@ -120,22 +113,21 @@ export const UserInfo = () => {
         </Grid>
       );
     }
-    //  dispatch(getDonacionesFor(user.id));
     return <CircularProgress color='secondary'></CircularProgress>;
   };
 
   return (
-    <Container>
-      <Typography variant='h5'>{t("informacion-de-usuario")}</Typography>
+    <Grid item xs={12} style={{ marginTop: "20vh" }}>
       {/* USER INFO */}
       <Card>
         <CardContent>
           <Typography variant='h5' component='h2'>
+            <Avatar aria-label='recipe' src={user.picture}></Avatar>
             {user.name}
           </Typography>
           <Typography color='textSecondary'>{t("donador")}</Typography>
           <Typography variant='body2' component='p'>
-            <strong> {t("emial")} </strong> {user.name}
+            <strong> {t("emial")} </strong> {user.email}
           </Typography>
           <Typography variant='body2' component='p'>
             <strong> {t("ultima-donacion")} </strong>
@@ -175,6 +167,6 @@ export const UserInfo = () => {
           {tabla()}
         </div>
       </Modal>
-    </Container>
+    </Grid>
   );
 };
