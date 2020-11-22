@@ -6,7 +6,6 @@ import {
   CardActions,
   CardContent,
   CircularProgress,
-  Container,
   Typography,
   Modal,
   Box,
@@ -19,6 +18,11 @@ import { makeStyles } from "@material-ui/core/styles";
 import { LicenseInfo } from "@material-ui/x-grid";
 import { DataGrid } from "@material-ui/data-grid";
 import { useAuth0 } from "@auth0/auth0-react";
+import { useDispatch, useSelector } from "react-redux";
+import { getDonacionesFor } from "../../redux/actions/user";
+import { getDonations } from "../../redux/selectores/user";
+import { getLanguageI18n } from "../../i18n";
+import { withRouter } from "react-router-dom";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -37,7 +41,7 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: "center",
   },
   paper: {
-    width: 400,
+    width: "60vw",
     backgroundColor: theme.palette.background.paper,
     borderRadius: "1.2rem",
     boxShadow: theme.shadows[5],
@@ -45,12 +49,14 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export const UserInfo = () => {
+const UserInfoComponent = () => {
   LicenseInfo.setLicenseKey(
     "x0jTPl0USVkVZV0SsMjM1kDNyADM5cjM2ETPZJVSQhVRsIDN0YTM6IVREJ1T0b9586ef25c9853decfa7709eee27a1e"
   );
   const { user } = useAuth0();
   const { t } = useTranslation();
+  const dispatch = useDispatch();
+  const donaciones = useSelector((state) => getDonations(state));
   const [verDonaciones, setVerDonaciones] = useState(false);
   const openVerDonaciones = (e) => {
     setVerDonaciones(true);
@@ -63,56 +69,60 @@ export const UserInfo = () => {
   const rootRef = useRef(null);
 
   const columns = [
-    { field: "name", headerName: t("proyecto"), width: 150 },
     {
-      field: "coverTheMinimumPercentage",
-      renderCell: (params) => {
-        if (params.value === 100) {
-          return <Chip label={t("finalizado")} color='secondary' />;
-        }
-        return (
-          <Box position='relative' display='inline-flex'>
-            <CircularProgress color='primary' variant='static' {...params} />
-            <Box
-              top={0}
-              left={0}
-              bottom={0}
-              right={0}
-              position='absolute'
-              display='flex'
-              alignItems='center'
-              justifyContent='center'>
-              <Typography
-                variant='caption'
-                component='div'
-                color='textSecondary'>
-                {`${Math.round(params.value)}%`}
-              </Typography>
-            </Box>
-          </Box>
-        );
-      },
-      headerName: t("finalizado"),
+      field: "date",
+      renderCell: (params) => (
+        <Box position='relative' display='inline-flex'>
+          {new Intl.DateTimeFormat(getLanguageI18n()).format(
+            new Date(params.value)
+          )}
+        </Box>
+      ),
+      headerName: "dia",
       width: 150,
     },
+    {
+      field: "project",
+      renderCell: (params) => (
+        <Box position='relative' display='inline-flex'>
+          {params.value.name}
+        </Box>
+      ),
+      headerName: t("proyecto"),
+      width: 150,
+    },
+    {
+      field: "project",
+      renderCell: (params) => (
+        <Box position='relative' display='inline-flex'>
+          {params.value.fantasyName}
+        </Box>
+      ),
+      headerName: "fanta",
+      width: 150,
+    },
+    { field: "points", headerName: "puntos", width: 150 },
+    { field: "amount", headerName: "donado", width: 150 },
   ];
   if (!user) {
     return <CircularProgress color='secondary'></CircularProgress>;
   }
   const tabla = () => {
-    if (user.donaciones && user.donaciones.length >= 0) {
+    if (donaciones && donaciones.length >= 0) {
       return (
-        <Grid container style={{ height: "70vh" }}>
+        <Grid container style={{ height: "70vh", width: "60vw" }}>
           <DataGrid
             pageSize={6}
             rowsPerPageOptions={[1, 4, 6]}
             pagination
-            rows={user.donaciones}
+            rows={donaciones}
             columns={columns}
           />
         </Grid>
       );
     }
+    dispatch(getDonacionesFor());
+
     return <CircularProgress color='secondary'></CircularProgress>;
   };
 
@@ -170,3 +180,5 @@ export const UserInfo = () => {
     </Grid>
   );
 };
+
+export const UserInfo = withRouter(UserInfoComponent);

@@ -12,8 +12,9 @@ import { Login } from "./components/Login";
 import { CircularProgress } from "@material-ui/core";
 
 const App = ({ store }) => {
-  const { isAuthenticated, isLoading } = useAuth0();
+  const { user, isAuthenticated, isLoading } = useAuth0();
   const fn_login = () => {
+    console.log("usuario -> ", user);
     if (isLoading)
       return <CircularProgress color='secondary'></CircularProgress>;
 

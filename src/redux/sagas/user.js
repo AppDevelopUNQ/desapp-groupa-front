@@ -4,12 +4,11 @@ import {
   SEARCH_DONATIONS_START,
   SEARCH_DONATIONS_ERROR,
 } from "../methods/user";
-import { TEST_DONA } from "../../controllers/BaseController";
+import { GET } from "../../controllers/BaseController";
 
 export function* getDonacionesFor({ payload }) {
   try {
-    // const results = yield call(GET, "user/donations", {idUsuario: payload});
-    const results = yield call(TEST_DONA, { idUsuario: payload });
+    const results = yield call(GET, `user/${39}/donations`, null);
     yield put({ type: SEARCH_DONATIONS_COMPLETE, results });
   } catch (error) {
     console.error(error);

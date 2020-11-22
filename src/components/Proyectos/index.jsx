@@ -18,7 +18,7 @@ import MuiAlert from "@material-ui/lab/Alert";
 import { DataGrid } from "@material-ui/data-grid";
 import { useDispatch, useSelector } from "react-redux";
 import { search } from "../../redux/actions/projects";
-import { donate } from "../../redux/actions/user";
+import { donate, getDonacionesFor } from "../../redux/actions/user";
 import { getAllProjects, isLoading } from "../../redux/selectores/projects";
 import { isLoadingUser } from "../../redux/selectores/user";
 import { LicenseInfo } from "@material-ui/x-grid";
@@ -38,6 +38,7 @@ import {
   MuiPickersUtilsProvider,
   KeyboardDatePicker,
 } from "@material-ui/pickers";
+import { withRouter } from "react-router-dom";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -105,7 +106,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export const Proyectos = () => {
+const ProyectoComponent = () => {
   LicenseInfo.setLicenseKey(
     "x0jTPl0USVkVZV0SsMjM1kDNyADM5cjM2ETPZJVSQhVRsIDN0YTM6IVREJ1T0b9586ef25c9853decfa7709eee27a1e"
   );
@@ -148,6 +149,14 @@ export const Proyectos = () => {
         amount: montoADonar,
       })
     );
+    dispatch(getDonacionesFor());
+    let d = new Date(selectedDate);
+    dispatch(
+      search({
+        word: searchText,
+        date: `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`,
+      })
+    );
     setMontoADonar(0);
     setOpenAlert(true);
   };
@@ -155,11 +164,12 @@ export const Proyectos = () => {
     setSearchText(e.target.value);
   };
   const handleSearch = (e) => {
+    let d = new Date(selectedDate);
     dispatch(
-      search(
-        searchText,
-        new Intl.DateTimeFormat("es-AR").format(new Date(selectedDate))
-      )
+      search({
+        word: searchText,
+        date: `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`,
+      })
     );
   };
   const classes = useStyles();
@@ -393,3 +403,6 @@ export const Proyectos = () => {
     </Container>
   );
 };
+
+
+export const Proyectos = withRouter(ProyectoComponent);

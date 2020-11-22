@@ -4,12 +4,14 @@ import {
   SEARCH_ALL_PROJECTS_START,
   SEARCH_ALL_PROJECTS_ERROR,
 } from "../methods/projects";
-import { GET, TEST_PROJ } from "../../controllers/BaseController";
+import { PUT } from "../../controllers/BaseController";
 
-export function* loginUser({ payload }) {
+export function* filterProject({ payload }) {
   try {
-    const results = yield call(GET, "project/list", { searchText: payload });
-    //const results = yield call(TEST_PROJ, { searchText: payload });
+    const results = yield call(PUT, "project/filter", {
+      word: payload ? payload.word : "",
+      date: payload ? payload.date : "",
+    });
     yield put({ type: SEARCH_ALL_PROJECTS_COMPLETE, results });
   } catch (error) {
     console.error(error);
@@ -17,6 +19,6 @@ export function* loginUser({ payload }) {
   }
 }
 
-export default function* logUser() {
-  yield takeLatest(SEARCH_ALL_PROJECTS_START, loginUser);
+export default function* filterProjectBase() {
+  yield takeLatest(SEARCH_ALL_PROJECTS_START, filterProject);
 }

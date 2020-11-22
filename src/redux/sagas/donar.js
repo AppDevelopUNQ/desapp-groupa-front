@@ -4,13 +4,11 @@ import {
   DONACION_START,
   DONACION_ERROR,
 } from "../methods/user";
-import { GET } from "../../controllers/LocalStorageController";
 import { POST } from "../../controllers/BaseController";
 
 export function* donacion({ payload }) {
   try {
-    const usuario = GET("userLoged");
-    yield call(POST, `user/${usuario.userId}/donations`, {
+    let donation = yield call(POST, `user/${39}/donate`, {
       projectId: payload.idProyecto,
       amount: payload.amount,
     });

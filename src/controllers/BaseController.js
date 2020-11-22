@@ -38,7 +38,7 @@ export const GET = (url, params) =>
     params,
   });
 
-export const POST = (url, data) =>
+export const POST = (url, data) => {
   axios({
     url: `${BASE_URL}/${url}`,
     timeout: 1000,
@@ -46,7 +46,7 @@ export const POST = (url, data) =>
     method: "POST",
     data,
   });
-
+};
 export const PUT = (url, data) =>
   axios({
     url: `${BASE_URL}/${url}`,
