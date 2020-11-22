@@ -13,21 +13,18 @@ export default function (state = initialState, action) {
         ...state,
         isLoading: true,
       };
-      break;
     case SEARCH_ALL_PROJECTS_COMPLETE:
       return {
         ...state,
         isLoading: false,
         allProjects: action.results.data,
       };
-      break;
     case SEARCH_ALL_PROJECTS_ERROR:
       return {
         ...state,
         isLoading: false,
         allProjects: [],
       };
-      break;
     default:
       return {
         ...state,

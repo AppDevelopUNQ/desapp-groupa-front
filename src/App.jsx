@@ -1,6 +1,6 @@
 import React from "react";
 import { BrowserRouter as Router, Route } from "react-router-dom";
-import { Provider } from "react-redux";
+import { Provider, useDispatch } from "react-redux";
 import PropTypes from "prop-types";
 import { useAuth0 } from "@auth0/auth0-react";
 
@@ -10,17 +10,20 @@ import { Selector } from "./components/Lenguaje";
 import { Logout } from "./components/Logout";
 import { Login } from "./components/Login";
 import { CircularProgress } from "@material-ui/core";
+import { login } from "./redux/actions/user";
 import "./style.sass";
 
 const App = ({ store }) => {
   const { user, isAuthenticated, isLoading } = useAuth0();
+  const dispatch = useDispatch();
   const fn_login = () => {
-    console.log("usuario -> ", user);
     if (isLoading)
       return <CircularProgress color='secondary'></CircularProgress>;
 
-    if (isAuthenticated) return <Logout />;
-
+    if (isAuthenticated) {
+      dispatch(login(user));
+      return <Logout />;
+    }
     return <Login />;
   };
   const ruteo = () => {

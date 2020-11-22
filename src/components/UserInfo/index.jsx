@@ -19,9 +19,10 @@ import { DataGrid } from "@material-ui/data-grid";
 import { useAuth0 } from "@auth0/auth0-react";
 import { useDispatch, useSelector } from "react-redux";
 import { getDonacionesFor } from "../../redux/actions/user";
-import { getDonations } from "../../redux/selectores/user";
+import { getDonations, getUser } from "../../redux/selectores/user";
 import { getLanguageI18n } from "../../i18n";
 import { withRouter } from "react-router-dom";
+import { NumberFormat } from "../../i18n";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -59,6 +60,7 @@ const UserInfoComponent = () => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
   const donaciones = useSelector((state) => getDonations(state));
+  const usuarioConDatos = useSelector((state) => getUser(state));
   const [verDonaciones, setVerDonaciones] = useState(false);
   const openVerDonaciones = (e) => {
     setVerDonaciones(true);
@@ -150,11 +152,13 @@ const UserInfoComponent = () => {
           </Typography>
           <Typography variant='body2' component='p'>
             <strong> {t("ultima-donacion")} </strong>
-            $1000
+            {usuarioConDatos
+              ? NumberFormat(usuarioConDatos.lastDonation)
+              : NumberFormat(0)}
           </Typography>
           <Typography variant='body2' component='p'>
             <strong> {t("puntos")} </strong>
-            1000
+            {usuarioConDatos ? usuarioConDatos.points : 0}
           </Typography>
         </CardContent>
         <CardActions>

@@ -5,6 +5,9 @@ import {
   DONACION_COMPLETE,
   DONACION_START,
   DONACION_ERROR,
+  LOGIN_START,
+  LOGIN_COMPLETE,
+  LOGIN_ERROR,
 } from "../methods/user";
 
 const initialState = {};
@@ -16,41 +19,52 @@ export default function (state = initialState, action) {
         ...state,
         isLoading: true,
       };
-      break;
     case SEARCH_DONATIONS_COMPLETE:
       return {
         ...state,
         isLoading: false,
         donations: action.results.data,
       };
-      break;
     case SEARCH_DONATIONS_ERROR:
       return {
         ...state,
         isLoading: false,
         donations: [],
       };
-      break;
 
     case DONACION_START:
       return {
         ...state,
         isLoading: true,
       };
-      break;
     case DONACION_COMPLETE:
       return {
         ...state,
         isLoading: false,
       };
-      break;
     case DONACION_ERROR:
       return {
         ...state,
         isLoading: false,
       };
-      break;
 
+    case LOGIN_START:
+      return {
+        ...state,
+        isLoading: true,
+      };
+    case LOGIN_COMPLETE:
+      return {
+        ...state,
+        isLoading: false,
+        user: action.results.data,
+      };
+    case LOGIN_ERROR:
+      return {
+        ...state,
+        isLoading: false,
+        user: null,
+      };
     default:
       return {
         ...state,
