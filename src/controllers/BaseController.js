@@ -23,6 +23,7 @@ export const POST = (url, data) => {
     data,
   });
 };
+
 export const PUT = (url, data) =>
   axios({
     url: `${BASE_URL}/${url}`,

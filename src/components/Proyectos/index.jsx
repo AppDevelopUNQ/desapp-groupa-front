@@ -240,6 +240,7 @@ const ProyectoComponent = () => {
   ];
 
   useEffect(() => {
+    console.log(proyectos);
     if (!proyectos) {
       dispatch(search());
     }

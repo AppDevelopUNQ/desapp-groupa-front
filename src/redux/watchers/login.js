@@ -1,10 +1,21 @@
-import { put, call, takeLatest } from "redux-saga/effects";
+import { put, takeLatest } from "redux-saga/effects";
 import { LOGIN_COMPLETE, LOGIN_START, LOGIN_ERROR } from "../methods/user";
-import { POST } from "../../controllers/BaseController";
+import axios from "axios";
+const BASE_URL = "https://desappunq.herokuapp.com";
+const HEADER = {
+  "Content-type": "application/json",
+};
 
 export function* getDonacionesFor({ payload }) {
   try {
-    const results = yield call(POST, `user`, payload);
+    const results = yield axios({
+      url: `${BASE_URL}/user/auth`,
+      timeout: 1000,
+      headers: HEADER,
+      method: "POST",
+      data: payload,
+    });
+    window.localStorage.setItem("idUser", results.data.userId);
     yield put({ type: LOGIN_COMPLETE, results });
   } catch (error) {
     console.error(error);
@@ -12,6 +23,6 @@ export function* getDonacionesFor({ payload }) {
   }
 }
 
-export default function* login() {
+export function* login() {
   yield takeLatest(LOGIN_START, getDonacionesFor);
 }

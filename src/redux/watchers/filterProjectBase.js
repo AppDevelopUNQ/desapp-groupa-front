@@ -4,7 +4,6 @@ import {
   SEARCH_ALL_PROJECTS_START,
   SEARCH_ALL_PROJECTS_ERROR,
 } from "../methods/projects";
-import { DONACION_COMPLETE } from "../methods/user";
 import { PUT } from "../../controllers/BaseController";
 
 export function* filterProject({ payload }) {

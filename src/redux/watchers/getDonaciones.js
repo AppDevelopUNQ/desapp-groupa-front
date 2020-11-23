@@ -3,13 +3,16 @@ import {
   SEARCH_DONATIONS_COMPLETE,
   SEARCH_DONATIONS_START,
   SEARCH_DONATIONS_ERROR,
-  DONACION_COMPLETE,
 } from "../methods/user";
 import { GET } from "../../controllers/BaseController";
 
 export function* getDonacionesFor({ payload }) {
   try {
-    const results = yield call(GET, `user/${39}/donations`, null);
+    const results = yield call(
+      GET,
+      `user/${window.localStorage.getItem("idUser")}/donations`,
+      null
+    );
     yield put({ type: SEARCH_DONATIONS_COMPLETE, results });
   } catch (error) {
     console.error(error);

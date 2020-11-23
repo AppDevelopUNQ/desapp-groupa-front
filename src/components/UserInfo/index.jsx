@@ -108,6 +108,7 @@ const UserInfoComponent = () => {
     { field: "points", headerName: t("puntos"), width: 150 },
     { field: "amount", headerName: t("donado"), width: 150 },
   ];
+
   if (!user) {
     return <CircularProgress color='secondary'></CircularProgress>;
   }
@@ -152,8 +153,13 @@ const UserInfoComponent = () => {
           </Typography>
           <Typography variant='body2' component='p'>
             <strong> {t("ultima-donacion")} </strong>
-            {usuarioConDatos
-              ? numberFormat(usuarioConDatos.lastDonation)
+            {usuarioConDatos && usuarioConDatos.donations
+              ? numberFormat(
+                  usuarioConDatos.donations
+                    .map((x) => x.amount)
+                    .slice(-1)
+                    .pop()
+                )
               : numberFormat(0)}
           </Typography>
           <Typography variant='body2' component='p'>
