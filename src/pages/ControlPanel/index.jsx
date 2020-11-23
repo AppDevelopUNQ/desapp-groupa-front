@@ -7,7 +7,7 @@ import { useTranslation } from "react-i18next";
 
 export const ControlPanel = () => {
   const { t } = useTranslation();
-  useEffectt(() => {
+  useEffect(() => {
     document.title = t("proyectos-y-donaciones");
   });
   return (
