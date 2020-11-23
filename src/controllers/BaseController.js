@@ -1,4 +1,5 @@
 import axios from "axios";
+
 const BASE_URL = "https://desappunq.herokuapp.com";
 const HEADER = {
   "Content-type": "application/json",
@@ -29,13 +30,4 @@ export const PUT = (url, data) =>
     headers: HEADER,
     method: "PUT",
     data,
-  });
-
-export const DELETE = (url, params) =>
-  axios({
-    url: `${BASE_URL}/${url}`,
-    timeout: 1000,
-    headers: HEADER,
-    method: "DELETE",
-    params,
   });

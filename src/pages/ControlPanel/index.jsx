@@ -7,7 +7,7 @@ import { Container, Grid } from "@material-ui/core";
 export const ControlPanel = () => {
   return (
     <Container>
-      <Grid container>
+      <Grid container className="container">
         <Grid item xs={12} lg={3}>
           <UserInfo />
         </Grid>

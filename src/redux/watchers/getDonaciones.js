@@ -3,6 +3,7 @@ import {
   SEARCH_DONATIONS_COMPLETE,
   SEARCH_DONATIONS_START,
   SEARCH_DONATIONS_ERROR,
+  DONACION_COMPLETE,
 } from "../methods/user";
 import { GET } from "../../controllers/BaseController";
 
@@ -16,6 +17,6 @@ export function* getDonacionesFor({ payload }) {
   }
 }
 
-export default function* getDonaciones() {
+export function* getDonaciones() {
   yield takeLatest(SEARCH_DONATIONS_START, getDonacionesFor);
 }

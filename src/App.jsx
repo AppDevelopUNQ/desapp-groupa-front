@@ -1,7 +1,6 @@
 import React from "react";
 import { BrowserRouter as Router, Route } from "react-router-dom";
-import { Provider, useDispatch } from "react-redux";
-import PropTypes from "prop-types";
+import { useDispatch } from "react-redux";
 import { useAuth0 } from "@auth0/auth0-react";
 
 import { Home } from "./pages/Home";
@@ -13,7 +12,7 @@ import { CircularProgress } from "@material-ui/core";
 import { login } from "./redux/actions/user";
 import "./style.sass";
 
-const App = ({ store }) => {
+const App = () => {
   const { user, isAuthenticated, isLoading } = useAuth0();
   const dispatch = useDispatch();
   const fn_login = () => {
@@ -30,8 +29,9 @@ const App = ({ store }) => {
     if (!isAuthenticated) return <Route exact path='/' component={Home} />;
     return <Route exact path='/' component={ControlPanel} />;
   };
+
   return (
-    <Provider store={store}>
+    <>
       <Router>
         <div className='root'>{ruteo()}</div>
       </Router>
@@ -39,12 +39,8 @@ const App = ({ store }) => {
         {fn_login()}
         <Selector />
       </div>
-    </Provider>
+    </>
   );
-};
-
-App.propTypes = {
-  store: PropTypes.object.isRequired,
 };
 
 export default App;
