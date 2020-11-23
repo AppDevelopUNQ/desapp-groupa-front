@@ -22,7 +22,7 @@ import { getDonacionesFor } from "../../redux/actions/user";
 import { getDonations, getUser } from "../../redux/selectores/user";
 import { getLanguageI18n } from "../../i18n";
 import { withRouter } from "react-router-dom";
-import { NumberFormat } from "../../i18n";
+import { numberFormat } from "../../i18n";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -153,8 +153,8 @@ const UserInfoComponent = () => {
           <Typography variant='body2' component='p'>
             <strong> {t("ultima-donacion")} </strong>
             {usuarioConDatos
-              ? NumberFormat(usuarioConDatos.lastDonation)
-              : NumberFormat(0)}
+              ? numberFormat(usuarioConDatos.lastDonation)
+              : numberFormat(0)}
           </Typography>
           <Typography variant='body2' component='p'>
             <strong> {t("puntos")} </strong>
