@@ -193,12 +193,11 @@ const ProyectoComponent = () => {
       headerName: t("fecha-fin"),
       width: 150,
     },
-
     {
-      field: "coverTheMinimumPercentage",
+      field: "missingPercentage",
       renderCell: (params) => (
         <Box position='relative' display='inline-flex'>
-          {/* <CircularProgress variant='static' {...params} />
+          <CircularProgress variant='static' {...params} />
           <Box
             top={0}
             left={0}
@@ -209,12 +208,22 @@ const ProyectoComponent = () => {
             alignItems='center'
             justifyContent='center'>
             <Typography variant='caption' component='div' color='textSecondary'>
-              {`${Math.round(params.value)}%`}
+              {`${100 - Math.round(params.value)}%`}
             </Typography>
-          </Box> */}
+          </Box>
         </Box>
       ),
       headerName: t("finalizado"),
+      width: 150,
+    },
+    {
+      field: "missingAmount",
+      renderCell: (params) => (
+        <Box position='relative' display='inline-flex'>
+          {numberFormat(params.value)}
+        </Box>
+      ),
+      headerName: {t('resta')},
       width: 150,
     },
     {
@@ -240,7 +249,6 @@ const ProyectoComponent = () => {
   ];
 
   useEffect(() => {
-    console.log(proyectos);
     if (!proyectos) {
       dispatch(search());
     }
