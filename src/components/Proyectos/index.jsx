@@ -126,28 +126,31 @@ const ProyectoComponent = () => {
   const loading = useSelector((state) => isLoading(state));
   const isLoadingDonate = useSelector((state) => isLoadingUser(state));
   const dispatch = useDispatch();
-  const donar = (idProyecto) => {
+  const [open, setOpen] = useState(false);
+  const [proyectoADonar, setProyectoADonar] = useState(null);
+  const [montoADonar, setMontoADonar] = useState(0);
+  const [missingAmount, setMissingAmount] = useState(0);
+  const [searchText, setSearchText] = useState("");
+
+  const donar = (idProyecto, missingAmount) => {
     setOpen(true);
+    setMissingAmount(missingAmount);
     setProyectoADonar(idProyecto);
   };
 
-  const [open, setOpen] = useState(false);
-  const [proyectoADonar, setProyectoADonar] = useState(0);
-  const [montoADonar, setMontoADonar] = useState(0);
-  const [searchText, setSearchText] = useState("");
   const handleClose = (e) => {
     setMontoADonar(0);
     setOpen(false);
   };
   const handleChangeMontoADonar = (e) => setMontoADonar(e.target.value);
   const handleClickEventoDeDonar = (e) => {
-    if (montoADonar <= 0) return;
+    if (montoADonar <= 0 || montoADonar > missingAmount) return;
     setOpen(false);
     let d = new Date(selectedDate);
     dispatch(
       donate({
         donacion: {
-          idProyecto: proyectoADonar,
+          idProyecto: proyectoADonar.idProyecto,
           amount: montoADonar,
         },
         search: {
@@ -178,6 +181,11 @@ const ProyectoComponent = () => {
   const handleDateChange = (date) => {
     setSelectedDate(date);
   };
+  const getPercentage = (x, c) => {
+    if (c) return "100%";
+    return `${100 - Math.round(x)}%`;
+  };
+
   const columns = [
     { field: "name", headerName: t("nombre"), width: 150 },
     { field: "fantasyName", headerName: t("nombre-fantasia"), width: 150 },
@@ -208,7 +216,10 @@ const ProyectoComponent = () => {
             alignItems='center'
             justifyContent='center'>
             <Typography variant='caption' component='div' color='textSecondary'>
-              {`${100 - Math.round(params.value)}%`}
+              {getPercentage(
+                params.value,
+                params.getValue("coverTheMinimumPercentage")
+              )}
             </Typography>
           </Box>
         </Box>
@@ -237,7 +248,7 @@ const ProyectoComponent = () => {
             variant='contained'
             color='primary'
             onClick={(e) => {
-              donar(params.value);
+              donar(params.value, params.getValue("missingAmount"));
             }}>
             {t("donar")}
           </Button>
@@ -358,7 +369,7 @@ const ProyectoComponent = () => {
               value={montoADonar}
               type='number'
               onChange={handleChangeMontoADonar}
-              error={montoADonar <= 0}
+              error={montoADonar <= 0 || montoADonar > missingAmount}
               startAdornment={
                 <InputAdornment position={t("currencyPosition")}>
                   {getCurrencySymbol()}

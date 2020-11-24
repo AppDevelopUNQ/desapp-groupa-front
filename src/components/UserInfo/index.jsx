@@ -153,7 +153,12 @@ const UserInfoComponent = () => {
           </Typography>
           <Typography variant='body2' component='p'>
             <strong> {t("ultima-donacion")} </strong>
-            {usuarioConDatos && usuarioConDatos.donations
+            {usuarioConDatos &&
+            usuarioConDatos.donations &&
+            usuarioConDatos.donations
+              .map((x) => x.amount)
+              .slice(-1)
+              .pop()
               ? numberFormat(
                   usuarioConDatos.donations
                     .map((x) => x.amount)
