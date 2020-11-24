@@ -150,7 +150,7 @@ const ProyectoComponent = () => {
     dispatch(
       donate({
         donacion: {
-          idProyecto: proyectoADonar.idProyecto,
+          idProyecto: proyectoADonar,
           amount: montoADonar,
         },
         search: {
