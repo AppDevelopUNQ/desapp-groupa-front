@@ -223,7 +223,7 @@ const ProyectoComponent = () => {
           {numberFormat(params.value)}
         </Box>
       ),
-      headerName: {t('resta')},
+      headerName: t("resta"),
       width: 150,
     },
     {
