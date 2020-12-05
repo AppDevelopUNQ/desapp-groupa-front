@@ -20,7 +20,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { search } from "../../redux/actions/projects";
 import { donate } from "../../redux/actions/user";
 import { getAllProjects, isLoading } from "../../redux/selectores/projects";
-import { isLoadingUser } from "../../redux/selectores/user";
+import { isLoadingUser, getUser } from "../../redux/selectores/user";
 import { LicenseInfo } from "@material-ui/x-grid";
 import "./style.sass";
 import { useTranslation } from "react-i18next";
@@ -125,6 +125,7 @@ const ProyectoComponent = () => {
   let proyectos = useSelector((state) => getAllProjects(state));
   const loading = useSelector((state) => isLoading(state));
   const isLoadingDonate = useSelector((state) => isLoadingUser(state));
+  const usuarioConDatos = useSelector((state) => getUser(state));
   const dispatch = useDispatch();
   const [open, setOpen] = useState(false);
   const [proyectoADonar, setProyectoADonar] = useState(null);
@@ -187,7 +188,7 @@ const ProyectoComponent = () => {
   };
 
   const columns = [
-    { field: "name", headerName: t("nombre"), width: 150 },
+    { field: "name", headerName: t("nombre"), width: 100 },
     { field: "fantasyName", headerName: t("nombre-fantasia"), width: 150 },
     {
       field: "deadline",
@@ -199,7 +200,7 @@ const ProyectoComponent = () => {
         </Box>
       ),
       headerName: t("fecha-fin"),
-      width: 150,
+      width: 100,
     },
     {
       field: "missingPercentage",
@@ -225,7 +226,7 @@ const ProyectoComponent = () => {
         </Box>
       ),
       headerName: t("finalizado"),
-      width: 150,
+      width: 100,
     },
     {
       field: "missingAmount",
@@ -243,6 +244,20 @@ const ProyectoComponent = () => {
         if (params.getValue("coverTheMinimumPercentage")) {
           return <Chip label={t("finalizado")} color='secondary' disabled />;
         }
+
+        if (usuarioConDatos && usuarioConDatos.admin) {
+          return (
+            <Button
+              variant='contained'
+              color='primary'
+              onClick={(e) => {
+                console.log(params.value, params.getValue("missingAmount"));
+              }}>
+              {t("Finalizar")}
+            </Button>
+          );
+        }
+
         return (
           <Button
             variant='contained'
@@ -255,7 +270,7 @@ const ProyectoComponent = () => {
         );
       },
       headerName: t("donar"),
-      width: 150,
+      width: 250,
     },
   ];
 
@@ -288,6 +303,42 @@ const ProyectoComponent = () => {
       return <CircularProgress color='secondary'></CircularProgress>;
     }
     return <MuiAlert elevation={6} variant='filled' {...props} />;
+  }
+
+  function getBuscador() {
+    if (usuarioConDatos && usuarioConDatos.admin) {
+      return (
+        <Grid container>
+          <Grid item xs={5}>
+            <Button
+              color='secondary'
+              variant='contained'
+              style={{ width: "100%" }}
+              onClick={handleSearch}>
+              {t("buscar")}
+            </Button>
+          </Grid>
+          <Grid item xs={5} style={{ marginLeft: 10 }}>
+            <Button
+              color='primary'
+              variant='contained'
+              style={{ width: "100%" }}
+              onClick={(e) => console.log("crear")}>
+              {t("crear")}
+            </Button>
+          </Grid>
+        </Grid>
+      );
+    }
+    return (
+      <Button
+        color='secondary'
+        variant='contained'
+        style={{ width: "100%" }}
+        onClick={handleSearch}>
+        {t("buscar")}
+      </Button>
+    );
   }
 
   return (
@@ -334,16 +385,10 @@ const ProyectoComponent = () => {
         <Grid
           item
           xs={12}
-          lg={2}
+          lg={3}
           className='margintop'
           style={{ marginLeft: 10 }}>
-          <Button
-            color='secondary'
-            variant='contained'
-            style={{ width: "100%" }}
-            onClick={handleSearch}>
-            {t("buscar")}
-          </Button>
+          {getBuscador()}
         </Grid>
       </Grid>
       <Grid style={{ marginTop: 20 }}>{tabla(proyectos)}</Grid>

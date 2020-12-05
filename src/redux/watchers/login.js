@@ -16,6 +16,7 @@ export function* getDonacionesFor({ payload }) {
       data: payload,
     });
     window.localStorage.setItem("idUser", results.data.userId);
+    // window.localStorage.setItem("admin", results.data.admin);
     yield put({ type: LOGIN_COMPLETE, results });
   } catch (error) {
     console.error(error);

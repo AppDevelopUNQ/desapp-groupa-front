@@ -1,9 +1,12 @@
 {
+  "Finalizar": "Finalize",
   "actualmente-existen-muchisimos-pueblos-y-localidades-que-aun-no-cuentan-con-conectividad-a-internet-el-programa-argentina-conectada-luego-rebautizado-como-plan-federal-de-internet-se-propone-llevar-conectividad-a-todo-el-pais-pueblo-por-pueblo": "Currently there are many towns and cities that still do not have Internet connectivity. The Argentina Conectada program (later renamed the Federal Internet Plan) aims to bring connectivity to the entire country, town by town.",
+  "administrador": "Administrator",
   "buscar": "Search",
   "conectate": "Connect",
   "conectemos-argentina": "Let's connect Argentina",
   "contrasena": "Password",
+  "crear": "Create",
   "currency": "USD",
   "currencyPosition": "start",
   "debe-ingresar-un-mail": "You must enter an email!",

@@ -112,6 +112,7 @@ const UserInfoComponent = () => {
   if (!user) {
     return <CircularProgress color='secondary'></CircularProgress>;
   }
+
   const tabla = () => {
     if (donaciones && donaciones.length >= 0) {
       return (
@@ -138,6 +139,47 @@ const UserInfoComponent = () => {
     return <CircularProgress color='secondary'></CircularProgress>;
   };
 
+  const labelDeDonadorOAdmin = () => {
+    if (usuarioConDatos && usuarioConDatos.admin) {
+      return (
+        <Typography color='textSecondary'>{t("administrador")}</Typography>
+      );
+    }
+
+    return <Typography color='textSecondary'>{t("donador")}</Typography>;
+  };
+
+  const infoDeUsuario = () => {
+    if (usuarioConDatos && usuarioConDatos.admin) {
+      return;
+    }
+
+    return (
+      <>
+        <Typography variant='body2' component='p'>
+          <strong> {t("ultima-donacion")} </strong>
+          {usuarioConDatos &&
+          usuarioConDatos.donations &&
+          usuarioConDatos.donations
+            .map((x) => x.amount)
+            .slice(-1)
+            .pop()
+            ? numberFormat(
+                usuarioConDatos.donations
+                  .map((x) => x.amount)
+                  .slice(-1)
+                  .pop()
+              )
+            : numberFormat(0)}
+        </Typography>
+        <Typography variant='body2' component='p'>
+          <strong> {t("puntos")} </strong>
+          {usuarioConDatos ? usuarioConDatos.points : 0}
+        </Typography>
+      </>
+    );
+  };
+
   return (
     <Grid item xs={12} className='container'>
       {/* USER INFO */}
@@ -147,40 +189,25 @@ const UserInfoComponent = () => {
             <Avatar aria-label='recipe' src={user.picture}></Avatar>
             {user.name}
           </Typography>
-          <Typography color='textSecondary'>{t("donador")}</Typography>
+          {labelDeDonadorOAdmin()}
           <Typography variant='body2' component='p'>
             <strong> {t("emial")} </strong> {user.email}
           </Typography>
-          <Typography variant='body2' component='p'>
-            <strong> {t("ultima-donacion")} </strong>
-            {usuarioConDatos &&
-            usuarioConDatos.donations &&
-            usuarioConDatos.donations
-              .map((x) => x.amount)
-              .slice(-1)
-              .pop()
-              ? numberFormat(
-                  usuarioConDatos.donations
-                    .map((x) => x.amount)
-                    .slice(-1)
-                    .pop()
-                )
-              : numberFormat(0)}
-          </Typography>
-          <Typography variant='body2' component='p'>
-            <strong> {t("puntos")} </strong>
-            {usuarioConDatos ? usuarioConDatos.points : 0}
-          </Typography>
+          {infoDeUsuario()}
         </CardContent>
         <CardActions>
           <Grid container>
             <Grid item xs={12}>
-              <Button
-                color='secondary'
-                style={{ width: "100%" }}
-                onClick={openVerDonaciones}>
-                {t("ver-donaciones")}
-              </Button>
+              {usuarioConDatos && usuarioConDatos.admin ? (
+                ""
+              ) : (
+                <Button
+                  color='secondary'
+                  style={{ width: "100%" }}
+                  onClick={openVerDonaciones}>
+                  {t("ver-donaciones")}
+                </Button>
+              )}
             </Grid>
           </Grid>
         </CardActions>
