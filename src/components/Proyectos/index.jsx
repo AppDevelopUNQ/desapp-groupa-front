@@ -20,6 +20,7 @@ import { DataGrid } from "@material-ui/data-grid";
 import { useDispatch, useSelector } from "react-redux";
 import { search } from "../../redux/actions/projects";
 import { searchLocalidadesAction } from "../../redux/actions/localidades";
+import { finalizar } from "../../redux/actions/projects";
 import { donate } from "../../redux/actions/user";
 import { getAllProjects, isLoading } from "../../redux/selectores/projects";
 import {
@@ -281,7 +282,7 @@ const ProyectoComponent = () => {
               variant='contained'
               color='primary'
               onClick={(e) => {
-                console.log(params.value, params.getValue("missingAmount"));
+                dispatch(finalizar({ idProyecto: params.value }));
               }}>
               {t("Finalizar")}
             </Button>
