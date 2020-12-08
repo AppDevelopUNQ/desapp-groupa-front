@@ -54,6 +54,7 @@ export default function (state = initialState, action) {
         isLoading: true,
       };
     case LOGIN_COMPLETE:
+      action.results.data.admin = true;
       return {
         ...state,
         isLoading: false,

@@ -13,19 +13,26 @@ import {
   Chip,
   InputBase,
   Snackbar,
+  TextField,
 } from "@material-ui/core";
 import MuiAlert from "@material-ui/lab/Alert";
 import { DataGrid } from "@material-ui/data-grid";
 import { useDispatch, useSelector } from "react-redux";
 import { search } from "../../redux/actions/projects";
+import { searchLocalidadesAction } from "../../redux/actions/localidades";
 import { donate } from "../../redux/actions/user";
 import { getAllProjects, isLoading } from "../../redux/selectores/projects";
+import {
+  isLoading as isLoadingLocate,
+  getAllLocalidades,
+} from "../../redux/selectores/localidades";
 import { isLoadingUser, getUser } from "../../redux/selectores/user";
 import { LicenseInfo } from "@material-ui/x-grid";
 import "./style.sass";
 import { useTranslation } from "react-i18next";
 import { fade, makeStyles } from "@material-ui/core/styles";
 import SearchIcon from "@material-ui/icons/Search";
+import PeopleAltIcon from "@material-ui/icons/PeopleAlt";
 import "date-fns";
 import DateFnsUtils from "@date-io/date-fns";
 import {
@@ -123,15 +130,35 @@ const ProyectoComponent = () => {
 
   const { t } = useTranslation();
   let proyectos = useSelector((state) => getAllProjects(state));
+  let listaDeLocalidades = useSelector((state) => getAllLocalidades(state));
   const loading = useSelector((state) => isLoading(state));
+  const loadingLocalidades = useSelector((state) => isLoadingLocate(state));
   const isLoadingDonate = useSelector((state) => isLoadingUser(state));
   const usuarioConDatos = useSelector((state) => getUser(state));
   const dispatch = useDispatch();
   const [open, setOpen] = useState(false);
+  const [openModalLocalidad, setOpenModalLocalidad] = useState(false);
   const [proyectoADonar, setProyectoADonar] = useState(null);
   const [montoADonar, setMontoADonar] = useState(0);
   const [missingAmount, setMissingAmount] = useState(0);
   const [searchText, setSearchText] = useState("");
+  // const [textSearchLocalidades, setTextSearchLocalidades] = useState("");
+
+  const searchLocalidades = () => {
+    if (
+      loadingLocalidades ||
+      !listaDeLocalidades ||
+      listaDeLocalidades.length === 0
+    )
+      return [];
+
+    return listaDeLocalidades;
+    // let expresion = new RegExp(`${textSearchLocalidades}.*`, "i");
+    // let listaFiltrada = listaDeLocalidades.filter(
+    //   (x) => expresion.test(x.name) || expresion.test(x.province)
+    // );
+    // return listaFiltrada ? listaFiltrada : [];
+  };
 
   const donar = (idProyecto, missingAmount) => {
     setOpen(true);
@@ -142,6 +169,7 @@ const ProyectoComponent = () => {
   const handleClose = (e) => {
     setMontoADonar(0);
     setOpen(false);
+    setOpenModalLocalidad(false);
   };
   const handleChangeMontoADonar = (e) => setMontoADonar(e.target.value);
   const handleClickEventoDeDonar = (e) => {
@@ -178,7 +206,9 @@ const ProyectoComponent = () => {
   const classes = useStyles();
   const rootRef = useRef(null);
   const [selectedDate, setSelectedDate] = React.useState(new Date(Date.now()));
-
+  const [localidadSeleccionada, setLocalidadSeleccionada] = React.useState(
+    null
+  );
   const handleDateChange = (date) => {
     setSelectedDate(date);
   };
@@ -274,9 +304,84 @@ const ProyectoComponent = () => {
     },
   ];
 
+  const columnsLocalidades = [
+    { field: "name", headerName: t("nombre"), width: 100 },
+    { field: "province", headerName: t("provincia"), width: 150 },
+    {
+      field: "population",
+      renderCell: (params) => (
+        <div style={{ display: "flex" }}>
+          <div>{params.value}</div>
+          <div style={{ marginTop: "6px", marginLeft: "6px" }}>
+            <PeopleAltIcon color='secondary' />
+          </div>
+        </div>
+      ),
+      headerName: t("poblacion"),
+      width: 150,
+    },
+    {
+      field: "stateOfConnection",
+      renderCell: (params) => (
+        <Box position='relative' display='inline-flex'>
+          <CircularProgress
+            variant='static'
+            color='secondary'
+            value={params.value ? 100 - params.value : 0}
+          />
+          <Box
+            top={0}
+            left={0}
+            bottom={0}
+            right={0}
+            position='absolute'
+            display='flex'
+            alignItems='center'
+            justifyContent='center'>
+            <Typography variant='caption' component='div' color='textSecondary'>
+              {getPercentage(params.value, false)}
+            </Typography>
+          </Box>
+        </Box>
+      ),
+      headerName: t("conexiones"),
+      width: 150,
+    },
+    {
+      field: "id",
+      renderCell: (params) => (
+        <Button
+          variant='contained'
+          color='secondary'
+          onClick={(e) => {
+            let localidad = listaDeLocalidades.filter(
+              (x) => x.id === params.value
+            )[0];
+            setLocalidadSeleccionada({
+              id: localidad.id,
+              name: localidad.name,
+              province: localidad.province,
+              population: localidad.population,
+              connection: localidad.connection,
+              stateOfConnection: localidad.stateOfConnection,
+            });
+            setOpenModalLocalidad(true);
+          }}>
+          {t("editar")}
+        </Button>
+      ),
+      headerName: t("editar"),
+      width: 250,
+    },
+  ];
+
   useEffect(() => {
     if (!proyectos) {
       dispatch(search());
+    }
+
+    if (usuarioConDatos && usuarioConDatos.admin && !listaDeLocalidades) {
+      dispatch(searchLocalidadesAction());
     }
   });
 
@@ -298,6 +403,25 @@ const ProyectoComponent = () => {
     return <CircularProgress color='secondary'></CircularProgress>;
   };
 
+  const tablaDeLocalidades = () => {
+    let localidades = searchLocalidades();
+    if (localidades && localidades.length >= 1) {
+      return (
+        <Grid container className='table'>
+          <DataGrid
+            pageSize={4}
+            rowsPerPageOptions={[1, 4, 5]}
+            pagination
+            rows={searchLocalidades()}
+            columns={columnsLocalidades}
+          />
+        </Grid>
+      );
+    }
+
+    return <CircularProgress color='secondary'></CircularProgress>;
+  };
+
   function Alert(props) {
     if (isLoadingDonate) {
       return <CircularProgress color='secondary'></CircularProgress>;
@@ -305,41 +429,111 @@ const ProyectoComponent = () => {
     return <MuiAlert elevation={6} variant='filled' {...props} />;
   }
 
-  function getBuscador() {
+  const getLocalidadesTable = () => {
     if (usuarioConDatos && usuarioConDatos.admin) {
       return (
-        <Grid container>
-          <Grid item xs={5}>
+        <>
+          <hr />
+
+          <Grid item xs={12} lg={4}>
+            <Typography variant='h5'>{t("localidades")}</Typography>
+          </Grid>
+          <Grid style={{ marginTop: 20 }}>{tablaDeLocalidades()}</Grid>
+        </>
+      );
+    }
+
+    return;
+  };
+
+  const modalLocalidadContent = () => {
+    if (localidadSeleccionada) {
+      return (
+        <div className={classes.paper}>
+          <Typography variant='h6'>
+            Editar Localidad - {localidadSeleccionada.name}
+          </Typography>
+          <Grid container>
+            <Grid item xs={12}>
+              <TextField
+                style={{ width: "100%" }}
+                label={t("nombre")}
+                defaultValue={localidadSeleccionada.name}
+                type='text'
+                onChange={(e) => {
+                  localidadSeleccionada.name = e.target.value;
+                }}
+                error={
+                  !localidadSeleccionada.name ||
+                  localidadSeleccionada.name === " "
+                }
+              />
+            </Grid>
+
+            <br />
+            <Grid item xs={12}>
+              <TextField
+                style={{ width: "100%" }}
+                label={t("provincia")}
+                defaultValue={localidadSeleccionada.province}
+                type='text'
+                onChange={(e) => {
+                  localidadSeleccionada.province = e.target.value;
+                }}
+                error={
+                  !localidadSeleccionada.province ||
+                  localidadSeleccionada.province === " "
+                }
+              />
+            </Grid>
+
+            <br />
+            <Grid item xs={12}>
+              <FormControl fullWidth style={{ marginTop: "1.2em" }}>
+                <Typography>{t("poblacion")}</Typography>
+                <Input
+                  style={{ width: "100%" }}
+                  defaultValue={localidadSeleccionada.population}
+                  type='number'
+                  onChange={(e) => {
+                    localidadSeleccionada.population = e.target.value;
+                  }}
+                  error={
+                    !localidadSeleccionada.population ||
+                    localidadSeleccionada.population < 1
+                  }
+                />
+              </FormControl>
+            </Grid>
+          </Grid>
+          <Grid item xs={12}>
             <Button
               color='secondary'
               variant='contained'
-              style={{ width: "100%" }}
-              onClick={handleSearch}>
-              {t("buscar")}
+              style={{ width: "100%", marginTop: "2em" }}
+              onClick={(e) => {
+                listaDeLocalidades.forEach((x) => {
+                  if (x.id === localidadSeleccionada.id) {
+                    x.id = localidadSeleccionada.id;
+                    x.name = localidadSeleccionada.name;
+                    x.province = localidadSeleccionada.province;
+                    x.population = localidadSeleccionada.population;
+                    x.connection = localidadSeleccionada.connection;
+                    x.stateOfConnection =
+                      localidadSeleccionada.stateOfConnection;
+                  }
+                });
+                setOpenModalLocalidad(false);
+              }}>
+              {t("editar")}
             </Button>
           </Grid>
-          <Grid item xs={5} style={{ marginLeft: 10 }}>
-            <Button
-              color='primary'
-              variant='contained'
-              style={{ width: "100%" }}
-              onClick={(e) => console.log("crear")}>
-              {t("crear")}
-            </Button>
-          </Grid>
-        </Grid>
+        </div>
       );
     }
-    return (
-      <Button
-        color='secondary'
-        variant='contained'
-        style={{ width: "100%" }}
-        onClick={handleSearch}>
-        {t("buscar")}
-      </Button>
-    );
-  }
+
+    return;
+  };
 
   return (
     <Container className='proyectos'>
@@ -354,7 +548,7 @@ const ProyectoComponent = () => {
             </div>
             <InputBase
               style={{ width: "100%" }}
-              placeholder='Search…'
+              placeholder={t("buscar")}
               classes={{
                 root: classes.inputRoot,
                 input: classes.inputInput,
@@ -388,10 +582,17 @@ const ProyectoComponent = () => {
           lg={3}
           className='margintop'
           style={{ marginLeft: 10 }}>
-          {getBuscador()}
+          <Button
+            color='secondary'
+            variant='contained'
+            style={{ width: "100%" }}
+            onClick={handleSearch}>
+            {t("buscar")}
+          </Button>
         </Grid>
       </Grid>
       <Grid style={{ marginTop: 20 }}>{tabla(proyectos)}</Grid>
+      {getLocalidadesTable()}
       {/* MODAL PARA DONAR */}
       <Modal
         disablePortal
@@ -479,6 +680,19 @@ const ProyectoComponent = () => {
             </Button>
           </Grid>
         </div>
+      </Modal>
+      {/* Modal para editar una localidad */}
+      <Modal
+        disablePortal
+        disableEnforceFocus
+        disableAutoFocus
+        open={openModalLocalidad}
+        onClose={handleClose}
+        aria-labelledby='server-modal-title'
+        aria-describedby='server-modal-description'
+        className={classes.modal}
+        container={() => rootRef.current}>
+        {modalLocalidadContent()}
       </Modal>
       <Snackbar
         open={openAlert}
