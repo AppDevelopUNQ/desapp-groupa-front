@@ -8,10 +8,13 @@ import { PUT } from "../../controllers/BaseController";
 
 export function* finalizarProyecto({ payload }) {
   try {
-    const results = yield call(
+    yield call(
       PUT,
-      `proyects/close/${window.localStorage.getItem("idUser")}/${payload.idProyecto}`
+      `project/close/${window.localStorage.getItem("idUser")}/${
+        payload.idProyecto
+      }`
     );
+    const results = yield call(PUT, "project/filter", { word: "", date: "" });
     yield put({ type: FINALIZAR_PROYECTO_COMPLETE, results });
   } catch (error) {
     console.error(error);

@@ -19,7 +19,10 @@ import MuiAlert from "@material-ui/lab/Alert";
 import { DataGrid } from "@material-ui/data-grid";
 import { useDispatch, useSelector } from "react-redux";
 import { search } from "../../redux/actions/projects";
-import { searchLocalidadesAction } from "../../redux/actions/localidades";
+import {
+  searchLocalidadesAction,
+  updateLocalidad,
+} from "../../redux/actions/localidades";
 import { finalizar } from "../../redux/actions/projects";
 import { donate } from "../../redux/actions/user";
 import { getAllProjects, isLoading } from "../../redux/selectores/projects";
@@ -272,7 +275,12 @@ const ProyectoComponent = () => {
     {
       field: "id",
       renderCell: (params) => {
-        if (params.getValue("coverTheMinimumPercentage")) {
+        if (
+          (usuarioConDatos &&
+            !usuarioConDatos.admin &&
+            params.getValue("coverTheMinimumPercentage")) ||
+          !params.getValue("open")
+        ) {
           return <Chip label={t("finalizado")} color='secondary' disabled />;
         }
 
@@ -363,7 +371,6 @@ const ProyectoComponent = () => {
               name: localidad.name,
               province: localidad.province,
               population: localidad.population,
-              connection: localidad.connection,
               stateOfConnection: localidad.stateOfConnection,
             });
             setOpenModalLocalidad(true);
@@ -452,7 +459,7 @@ const ProyectoComponent = () => {
       return (
         <div className={classes.paper}>
           <Typography variant='h6'>
-            Editar Localidad - {localidadSeleccionada.name}
+            {t("editar-localidad")} - {localidadSeleccionada.name}
           </Typography>
           <Grid container>
             <Grid item xs={12}>
@@ -519,11 +526,11 @@ const ProyectoComponent = () => {
                     x.name = localidadSeleccionada.name;
                     x.province = localidadSeleccionada.province;
                     x.population = localidadSeleccionada.population;
-                    x.connection = localidadSeleccionada.connection;
                     x.stateOfConnection =
                       localidadSeleccionada.stateOfConnection;
                   }
                 });
+                dispatch(updateLocalidad(localidadSeleccionada));
                 setOpenModalLocalidad(false);
               }}>
               {t("editar")}

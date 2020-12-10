@@ -38,6 +38,7 @@ export default function (state = initialState, action) {
       return {
         ...state,
         isLoading: false,
+        allProjects: action.results.data,
       };
     case FINALIZAR_PROYECTO_ERROR:
       return {

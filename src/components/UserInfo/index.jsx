@@ -187,7 +187,7 @@ const UserInfoComponent = () => {
         <CardContent>
           <Typography variant='h5' component='h2'>
             <Avatar aria-label='recipe' src={user.picture}></Avatar>
-            {user.name}
+            {user.nickname}
           </Typography>
           {labelDeDonadorOAdmin()}
           <Typography variant='body2' component='p'>
